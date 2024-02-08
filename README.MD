@@ -4,7 +4,15 @@
 
 Essa aplicação foi desenvolvida durante o NLW Experts da Rocketseat utilizando React, TypeScript, Tailwind e a SpeechRecognition API.
 
-## Executando
+## 👩🏻‍💻 Tecnologias e bibliotecas utilizadas 
+- ReactJs
+- Vite
+- Typescript
+- Radix
+- Tailwind CSS 
+
+
+## 🚀 Como executar
 
 Após clonar o repositório, acesse a pasta do projeto e execute os comandos abaixo:
 
