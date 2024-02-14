@@ -3,10 +3,15 @@ import { X } from 'lucide-react'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { toast } from 'sonner'
 
-export function NewCard() {
+interface NewNoteCardProps {
+  onNoteCreated: (content: string) => void
+}
+
+export function NewCard({onNoteCreated}: NewNoteCardProps) {
 
   const [shouldShouwOnBoarding, setShouldOnBoarding] = useState(true)
   const [content, setContent] = useState('')
+  const [isRecording, setIsRecording] = useState(false)
 
   function handleStartEditor() {
     setShouldOnBoarding(false)
@@ -21,10 +26,25 @@ export function NewCard() {
   }
 
   function handleSaveNote(event: FormEvent) {
+    if(content === ''){
+      return
+    }
+
       event.preventDefault()
-      console.log(content)
+      onNoteCreated(content)
+
+      setContent('')
+      setShouldOnBoarding(true)
+
       toast.success('Nota criada com sucesso')
   }
+
+  function handleStartRecording(){
+    setIsRecording(true)
+  }
+function handleStopRecording(){
+  setIsRecording(false)
+}
   return (
     <Dialog.Root>
       <Dialog.Trigger className="rounded-md flex flex-col bg-slate-700 text-left p-5 gap-3 outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
@@ -45,18 +65,29 @@ export function NewCard() {
               </span>
               {shouldShouwOnBoarding ? (
                 <p className="text-sm leading-6 text-slate-400">
-                  Comece <button className="font-medium text-lime-400 hover:inderline">gravando uma nota</button > em áudio ou se preferir utilize <button onClick={handleStartEditor} className="font-medium text-lime-400 hover:inderline">apenas texto</button>.
+                  Comece <button type="button" className="font-medium text-lime-400 hover:inderline" onClick={handleStartRecording}>gravando uma nota</button > em áudio ou se preferir utilize <button type="button" onClick={handleStartEditor} className="font-medium text-lime-400 hover:inderline">apenas texto</button>.
                 </p>
               ) :
                 <textarea autoFocus
                   className="text-sm leading-6 text-slate-400 bg-transparent resize-none flex-1 outline-none"
-                  onChange={handleContentChange} />
+                  onChange={handleContentChange}
+                  value={content}
+                  />
               }
 
             </div>
-            <button className="w-full bg-lime-400 py-4 text-center text-sm text-lime-950 outline-none font-medium group hover:bg-lime-500">
+            {isRecording ? (
+              <button type="button" onClick={handleStopRecording} className="w-full bg-slate-900 py-4  flex items-center justify-center gap-2 text-center text-sm text-slate-300 outline-none font-medium group hover:bg-slate-100">
+              
+              <div className="size-3 rounded-full bg-red-500 animate-pulse"/>
+              Gravando! (clique p/ interromper)
+            </button>
+            ) : (
+              <button type="button" className="w-full bg-lime-400 py-4 text-center text-sm text-lime-950 outline-none font-medium group hover:bg-lime-500">
               Salvar nota
             </button>
+            )}
+          
           </form>
         </Dialog.Content>
       </Dialog.Portal>

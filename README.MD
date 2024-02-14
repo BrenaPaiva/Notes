@@ -22,3 +22,5 @@ npm run dev
 ```
 
 Acesse http://localhost:5173 para visualizar a aplicação.
+
+parei em 30:13
