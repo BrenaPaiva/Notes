@@ -28,5 +28,4 @@ jobs:
         # Add your deployment command or script here.
         # For example, deploying to Netlify:
         npx netlify-cli deploy --prod
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+ 
