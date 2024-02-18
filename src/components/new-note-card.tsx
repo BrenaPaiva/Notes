@@ -7,6 +7,8 @@ interface NewNoteCardProps {
   onNoteCreated: (content: string) => void
 }
 
+let speechRecognition: SpeechRecognition | null = null
+
 export function NewCard({onNoteCreated}: NewNoteCardProps) {
 
   const [shouldShouwOnBoarding, setShouldOnBoarding] = useState(true)
@@ -27,6 +29,7 @@ export function NewCard({onNoteCreated}: NewNoteCardProps) {
 
   function handleSaveNote(event: FormEvent) {
     if(content === ''){
+      toast.error('Nota vazia')
       return
     }
 
@@ -40,11 +43,50 @@ export function NewCard({onNoteCreated}: NewNoteCardProps) {
   }
 
   function handleStartRecording(){
+
+    const  isSpeechRecognitionAPIAvailable = 'SpeechRecognition' in window
+    || 'webkitSpeechRecognition' in window
+
+    if(!isSpeechRecognitionAPIAvailable){
+      alert('Infelizmente seu navegador não suporta a API de gravação')
+
+      return;
+    }
+
     setIsRecording(true)
+    setShouldOnBoarding(false)
+
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+
+     speechRecognition = new SpeechRecognitionAPI()
+
+    speechRecognition.lang = 'pt-BR'
+    speechRecognition.continuous = true
+    speechRecognition.maxAlternatives = 1
+    speechRecognition.interimResults = true
+
+    speechRecognition.onresult = (event) => {
+      const transcription = Array.from(event.results).reduce((text, result) => {
+        return text.concat(result[0].transcript)
+      }, '')
+
+      setContent(transcription)
+    }
+      speechRecognition.onerror = (event) => {
+        console.error(event)
+
+      }
+      speechRecognition.start() 
+
   }
-function handleStopRecording(){
-  setIsRecording(false)
-}
+  function handleStopRecording() {
+    setIsRecording(false);
+
+    if (speechRecognition !== null) {
+      speechRecognition.stop();
+    }
+  }
+
   return (
     <Dialog.Root>
       <Dialog.Trigger className="rounded-md flex flex-col bg-slate-700 text-left p-5 gap-3 outline-none hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
@@ -53,7 +95,7 @@ function handleStopRecording(){
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="inset-0 fixed bg-black/60" />
-        <Dialog.Content className="fixed left-1/2 overflow-hidden top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[640px] w-full h-[60vh] bg-slate-700 rounded-md flex flex-col outline-none">
+        <Dialog.Content className="fixed md:left-1/2 overflow-hidden inset-0 md:inset-auto md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-[640px] w-full md:h-[60vh] bg-slate-700 md:rounded-md flex flex-col outline-none">
           <Dialog.Close className="absolute right-0 top-0 bg-slate-800 p-1.5 text-slate-400">
             <X className="size-5 hover:text-slate-100" />
           </Dialog.Close>
@@ -83,7 +125,7 @@ function handleStopRecording(){
               Gravando! (clique p/ interromper)
             </button>
             ) : (
-              <button type="button" className="w-full bg-lime-400 py-4 text-center text-sm text-lime-950 outline-none font-medium group hover:bg-lime-500">
+              <button type="button"  onClick={handleSaveNote} className="w-full bg-lime-400 py-4 text-center text-sm text-lime-950 outline-none font-medium group hover:bg-lime-500">
               Salvar nota
             </button>
             )}
