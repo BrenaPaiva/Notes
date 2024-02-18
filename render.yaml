@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: notes
+    buildCommand: "npm run build"
+    startCommand: "npm run dev"
+   
